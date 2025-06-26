@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movies</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      src="https://kit.fontawesome.com/3e682447c7.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <img src="assets/blinker__logo.png" class="nav__logo" alt="" />
+      <div class="nav__link--list">
+        <div class="nav__link">Home</div>
+        <div class="nav__link">Find Your Movie</div>
+        <div class="nav__link nav__link--contact">Contact</div>
+      </div>
+    </nav>
+    <header>
+      <div class="container">
+        <div class="row row__header">
+          <h1 class="header__title">Browse Our Movies</h1>
+          <div class="input-wrap">
+            <input
+              type="text"
+              placeholder="Search by Title, Director..."
+              class="input-wrap__content"
+            />
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+        </div>
+      </div>
+    </header>
+    <section id="search">
+      <div class="search__container">
+        <h1 class="search__title">Search Results:</h1>
+        <div class="price-filter">
+          <div class="range-values">
+            <span id="minPrice">$0</span>
+            <span id="maxPrice">$100,000</span>
+          </div>
+          <div class="slider-container">
+            <input
+              type="range"
+              id="priceMin"
+              min="0"
+              max="100000"
+              value="0"
+              step="1000"
+            />
+            <input
+              type="range"
+              id="priceMax"
+              min="0"
+              max="100000"
+              value="100000"
+              step="1000"
+            />
+          </div>
+        </div>
+      </div>
+      <select name="" id="filter" onchange="filterMovies(event)">
+        <option value="" disabled selected>Sort</option>
+        <option value="ALPHA">Alphabetically</option>
+        <option value="YEAR">Year</option>
+        <option value="RATING">Rating</option>
+      </select>
+      <div class="movies">
+        <i class="fas fa-spinner movies__loading--spinner"></i>
+      </div>
+    </section>
+  </body>
+  <script src="movies.js"></script>
+</html>
