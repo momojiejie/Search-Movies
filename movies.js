@@ -1,26 +1,5 @@
 // API 1:  http://www.omdbapi.com/?i=tt3896198&apikey=347aa7fa
 
-const minSlider = document.getElementById("priceMin");
-const maxSlider = document.getElementById("priceMax");
-const minDisplay = document.getElementById("minPrice");
-const maxDisplay = document.getElementById("maxPrice");
-
-minSlider.addEventListener("input", updateRange);
-maxSlider.addEventListener("input", updateRange);
-
-function updateRange() {
-  let minVal = parseInt(minSlider.value);
-  let maxVal = parseInt(maxSlider.value);
-
-  if (minVal > maxVal) {
-    // Swap values if they cross
-    [minVal, maxVal] = [maxVal, minVal];
-  }
-
-  minDisplay.textContent = `$${minVal.toLocaleString()}`;
-  maxDisplay.textContent = `$${maxVal.toLocaleString()}`;
-}
-
 const moviesListEl = document.querySelector(".movies");
 const apiKey = "347aa7fa";
 const movieIds = [
@@ -66,11 +45,7 @@ async function renderMovies(filter) {
           <h4 class="movie__year">${movie.Year}</h4>
           <h4 class="movie__imdb">${movie.imdbRating}</h4>
           <div class="movie__ratings">
-            <i class="fas fa-star" aria-hidden="true"></i>
-            <i class="fas fa-star" aria-hidden="true"></i>
-            <i class="fas fa-star" aria-hidden="true"></i>
-            <i class="fas fa-star" aria-hidden="true"></i>
-            <i class="fas fa-star" aria-hidden="true"></i>
+            ${ratingsHTML(movie.imdbRating)}
           </div>
           <p class="movie__para">${movie.Plot}</p>
         </div>`;
@@ -95,6 +70,45 @@ setTimeout(() => {
   renderMovies();
 });
 
-function filterMovies(event) {
-  renderMovies(event.target.value);
+document.getElementById('searchInput').addEventListener('keyup', (e) => {
+  if (e.key === 'Enter') {
+    handleSearch(e.target.value);
+  }
+});
+
+
+function handleSearch(query) {
+  const normalizedQuery = query.trim().toLowerCase();
+
+  if (!normalizedQuery) {
+    renderMovies([]); // Clear if empty
+    return;
+  }
+
+  const matchedMovie = movies.find(
+    (movie) => movie.Title.toLowerCase() === normalizedQuery
+  );
+
+  if (matchedMovie) {
+    renderMovies([matchedMovie]);
+  } else {
+    renderMovies([]); // Nothing found
+  }
+}
+function toggleMenu() {
+  const menu = document.getElementById('navMenu');
+  menu.classList.toggle('active');
+}
+
+function ratingsHTML(rating) {
+    const rating_half = rating / 2;
+  let ratingHTML = "";
+  for (let i = 0; i < Math.floor(rating_half); ++i) {
+    ratingHTML += '<i class="fas fa-star"></i>\n';
+  }
+
+  if (!Number.isInteger(rating_half)) {
+    ratingHTML += '<i class="fas fa-star-half-alt"></i>\n';
+  }
+  return ratingHTML;
 }
