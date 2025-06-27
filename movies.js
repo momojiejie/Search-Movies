@@ -1,5 +1,3 @@
-// API 1:  http://www.omdbapi.com/?i=tt3896198&apikey=347aa7fa
-
 const moviesListEl = document.querySelector(".movies");
 const apiKey = "347aa7fa";
 const movieIds = [
@@ -11,33 +9,34 @@ const movieIds = [
   "tt0137523",
 ]; // The Matrix, Pulp Fiction, Shawshank, etc.
 
-let movies;
+let movies = [];
 
-async function renderMovies(filter) {
-  const moviesWrapper = document.querySelector(".movies");
+// Fetch all movies and render on load
+async function fetchAndStoreMovies() {
+  const promises = movieIds.map((id) =>
+    fetch(`https://www.omdbapi.com/?i=${id}&apikey=${apiKey}`).then((res) =>
+      res.json()
+    )
+  );
+  movies = await Promise.all(promises);
+  renderMovies(movies); // render all on load
+}
 
-  moviesWrapper.classList += " movies__loading";
+fetchAndStoreMovies();
 
-  if (!movies) {
-    movies = await fetchMovies();
+// Render a list of movies
+function renderMovies(movieArray) {
+  const wrapper = document.querySelector(".movies");
+
+  if (!movieArray || movieArray.length === 0) {
+    wrapper.innerHTML = `<p class="no-results">No matching movies found.</p>`;
+    return;
   }
-  moviesWrapper.classList.remove("movies__loading");
 
-  if (filter === "ALPHA") {
-    movies.sort((a, b) => a.Title.localeCompare(b.Title));
-  } else if (filter === "YEAR") {
-    movies.sort((a, b) => {
-      const yearA = parseInt(a.Year.split("–")[0]) || 0;
-      const yearB = parseInt(b.Year.split("–")[0]) || 0;
-      return yearA - yearB;
-    });
-  } else if (filter === "RATING") {
-    movies.sort((a, b) => parseFloat(b.imdbRating) - parseFloat(a.imdbRating));
-  }
-
-  const moviesHTML = movies
+  const moviesHTML = movieArray
     .map((movie) => {
-      return ` <div class="movie">
+      return ` 
+        <div class="movie">
           <div class="movie__img-wrapper">
             <img src="${movie.Poster}" class="movie__img" />
           </div>
@@ -52,57 +51,60 @@ async function renderMovies(filter) {
     })
     .join("");
 
-  moviesWrapper.innerHTML = moviesHTML;
+  wrapper.innerHTML = moviesHTML;
 }
 
-async function fetchMovies() {
-  const promises = movieIds.map((id) =>
-    fetch(`https://www.omdbapi.com/?i=${id}&apikey=${apiKey}`).then((res) =>
-      res.json()
-    )
-  );
+// Sort dropdown handler
+document.getElementById("filter").addEventListener("change", (e) => {
+  const filter = e.target.value;
+  let sortedMovies = [...movies];
 
-  const movies = await Promise.all(promises);
-  return movies;
-}
+  if (filter === "ALPHA") {
+    sortedMovies.sort((a, b) => a.Title.localeCompare(b.Title));
+  } else if (filter === "YEAR") {
+    sortedMovies.sort((a, b) => {
+      const yearA = parseInt(a.Year.split("–")[0]) || 0;
+      const yearB = parseInt(b.Year.split("–")[0]) || 0;
+      return yearA - yearB;
+    });
+  } else if (filter === "RATING") {
+    sortedMovies.sort(
+      (a, b) => parseFloat(b.imdbRating) - parseFloat(a.imdbRating)
+    );
+  }
 
-setTimeout(() => {
-  renderMovies();
+  renderMovies(sortedMovies);
 });
 
-document.getElementById('searchInput').addEventListener('keyup', (e) => {
-  if (e.key === 'Enter') {
-    handleSearch(e.target.value);
+// Search input handler
+document.getElementById("searchInput").addEventListener("keyup", (e) => {
+  if (e.key === "Enter") {
+    const query = e.target.value.trim().toLowerCase();
+
+    if (!query) {
+      renderMovies(movies); // Reset to full list if input is blank
+      return;
+    }
+
+    const match = movies.find(
+      (movie) => movie.Title.toLowerCase() === query
+    );
+
+    renderMovies(match ? [match] : []);
   }
 });
 
-
-function handleSearch(query) {
-  const normalizedQuery = query.trim().toLowerCase();
-
-  if (!normalizedQuery) {
-    renderMovies([]); // Clear if empty
-    return;
-  }
-
-  const matchedMovie = movies.find(
-    (movie) => movie.Title.toLowerCase() === normalizedQuery
-  );
-
-  if (matchedMovie) {
-    renderMovies([matchedMovie]);
-  } else {
-    renderMovies([]); // Nothing found
-  }
-}
+// Optional burger menu toggle
 function toggleMenu() {
-  const menu = document.getElementById('navMenu');
-  menu.classList.toggle('active');
+  const menu = document.getElementById("navMenu");
+  menu.classList.toggle("active");
 }
 
+// Star rating renderer
 function ratingsHTML(rating) {
-    const rating_half = rating / 2;
+  const rating_half = rating / 2;
   let ratingHTML = "";
+
   for (let i = 0; i < Math.floor(rating_half); ++i) {
     ratingHTML += '<i class="fas fa-star"></i>\n';
   }
@@ -110,5 +112,6 @@ function ratingsHTML(rating) {
   if (!Number.isInteger(rating_half)) {
     ratingHTML += '<i class="fas fa-star-half-alt"></i>\n';
   }
+
   return ratingHTML;
 }
