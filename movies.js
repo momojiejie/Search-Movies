@@ -79,13 +79,13 @@ document.getElementById("filter").addEventListener("change", (e) => {
 // Search input handler
 document.getElementById("searchInput").addEventListener("keyup", async (e) => {
   if (e.key === "Enter") {
-    const query = e.target.value.trim().replace(/\s+/g, "+");
-
+    const query = e.target.value.trim();
     if (!query) {
       renderMovies(movies); // Reset to full list if input is blank
       return;
     }
 
+    if (query)
     const encodedQuery = query.replace(/\s+/g, "+");
     const url = `https://www.omdbapi.com/?t=${encodedQuery}&apikey=${apiKey}`;
 
