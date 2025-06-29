@@ -85,7 +85,6 @@ document.getElementById("searchInput").addEventListener("keyup", async (e) => {
       return;
     }
 
-    if (query)
     const encodedQuery = query.replace(/\s+/g, "+");
     const url = `https://www.omdbapi.com/?t=${encodedQuery}&apikey=${apiKey}`;
 
