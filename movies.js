@@ -77,20 +77,31 @@ document.getElementById("filter").addEventListener("change", (e) => {
 });
 
 // Search input handler
-document.getElementById("searchInput").addEventListener("keyup", (e) => {
+document.getElementById("searchInput").addEventListener("keyup", async (e) => {
   if (e.key === "Enter") {
-    const query = e.target.value.trim().toLowerCase();
+    const query = e.target.value.trim().replace(/\s+/g, "+");
 
     if (!query) {
       renderMovies(movies); // Reset to full list if input is blank
       return;
     }
 
-    const match = movies.find(
-      (movie) => movie.Title.toLowerCase() === query
-    );
+    const encodedQuery = query.replace(/\s+/g, "+");
+    const url = `https://www.omdbapi.com/?t=${encodedQuery}&apikey=${apiKey}`;
 
-    renderMovies(match ? [match] : []);
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data.Response === "True") {
+        renderMovies([data]); // Show single movie as array
+      } else {
+        renderMovies([]); // No results
+      }
+    } catch (error) {
+      console.error("Search failed:", error);
+      renderMovies([]);
+    }
   }
 });
 
